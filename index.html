@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematyka - Działania na Zbiorach</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧮 Nauka Matematyki</h1>
+            <p class="subtitle">Działania na Zbiorach</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" data-tab="theory">Teoria</button>
+            <button class="tab-button" data-tab="quiz">Quiz</button>
+            <button class="tab-button" data-tab="progress">Postępy</button>
+        </nav>
+
+        <!-- TEORIA -->
+        <div id="theory" class="tab-content active">
+            <div class="theory-section">
+                <h2>Czym jest zbiór?</h2>
+                <p class="definition">
+                    <strong>Zbiór</strong> to kolekcja dobrze określonych i rozróżnialnych obiektów,
+                    zwanych elementami zbioru.
+                </p>
+                <div class="example">
+                    <p><strong>Przykład:</strong></p>
+                    <p>A = {1, 2, 3, 4, 5}</p>
+                    <p>B = {2, 4, 6, 8}</p>
+                </div>
+            </div>
+
+            <div class="theory-section">
+                <h2>Podstawowe działania na zbiorach</h2>
+
+                <div class="operation">
+                    <h3>1. Suma zbiorów (∪)</h3>
+                    <p class="definition">
+                        Zbiór zawierający wszystkie elementy, które należą do co najmniej jednego
+                        z łączonych zbiorów.
+                    </p>
+                    <div class="example">
+                        <p>A = {1, 2, 3}</p>
+                        <p>B = {3, 4, 5}</p>
+                        <p><strong>A ∪ B = {1, 2, 3, 4, 5}</strong></p>
+                    </div>
+                </div>
+
+                <div class="operation">
+                    <h3>2. Przecięcie zbiorów (∩)</h3>
+                    <p class="definition">
+                        Zbiór zawierający tylko te elementy, które należą do obu zbiorów jednocześnie.
+                    </p>
+                    <div class="example">
+                        <p>A = {1, 2, 3, 4}</p>
+                        <p>B = {3, 4, 5, 6}</p>
+                        <p><strong>A ∩ B = {3, 4}</strong></p>
+                    </div>
+                </div>
+
+                <div class="operation">
+                    <h3>3. Różnica zbiorów (−)</h3>
+                    <p class="definition">
+                        Zbiór elementów należących do pierwszego zbioru, ale nie należących do drugiego.
+                    </p>
+                    <div class="example">
+                        <p>A = {1, 2, 3, 4, 5}</p>
+                        <p>B = {4, 5, 6, 7}</p>
+                        <p><strong>A − B = {1, 2, 3}</strong></p>
+                        <p><strong>B − A = {6, 7}</strong></p>
+                    </div>
+                </div>
+
+                <div class="operation">
+                    <h3>4. Dopełnienie zbioru (A')</h3>
+                    <p class="definition">
+                        Wszystkie elementy uniwersum, które nie należą do danego zbioru.
+                    </p>
+                    <div class="example">
+                        <p>U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} (uniwersum)</p>
+                        <p>A = {2, 4, 6, 8, 10}</p>
+                        <p><strong>A' = {1, 3, 5, 7, 9}</strong></p>
+                    </div>
+                </div>
+
+                <div class="operation">
+                    <h3>5. Różnica symetryczna (△)</h3>
+                    <p class="definition">
+                        Zbiór elementów należących do dokładnie jednego z dwóch zbiorów.
+                    </p>
+                    <div class="example">
+                        <p>A = {1, 2, 3, 4}</p>
+                        <p>B = {3, 4, 5, 6}</p>
+                        <p><strong>A △ B = {1, 2, 5, 6}</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="theory-section">
+                <h2>Własności działań na zbiorach</h2>
+                <ul class="properties-list">
+                    <li><strong>Przemienność:</strong> A ∪ B = B ∪ A oraz A ∩ B = B ∩ A</li>
+                    <li><strong>Łączność:</strong> (A ∪ B) ∪ C = A ∪ (B ∪ C)</li>
+                    <li><strong>Rozdzielność:</strong> A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)</li>
+                    <li><strong>Prawo de Morgana:</strong> (A ∪ B)' = A' ∩ B'</li>
+                    <li><strong>Prawo de Morgana:</strong> (A ∩ B)' = A' ∪ B'</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quiz" class="tab-content">
+            <div class="quiz-container">
+                <div id="quiz-start" class="quiz-screen">
+                    <h2>Sprawdź swoją wiedzę!</h2>
+                    <p>Quiz zawiera pytania o działaniach na zbiorach.</p>
+                    <p class="quiz-info">Liczba pytań: <span id="total-questions">0</span></p>
+                    <button class="btn btn-primary" onclick="startQuiz()">Rozpocznij Quiz</button>
+                </div>
+
+                <div id="quiz-question" class="quiz-screen hidden">
+                    <div class="quiz-header">
+                        <span class="question-number">Pytanie <span id="current-question">1</span> z <span id="total-q">10</span></span>
+                        <span class="quiz-score">Punkty: <span id="current-score">0</span></span>
+                    </div>
+
+                    <div class="question-container">
+                        <h3 id="question-text"></h3>
+                        <div id="question-sets" class="sets-display"></div>
+                        <div id="answers-container" class="answers"></div>
+                    </div>
+
+                    <div class="quiz-controls">
+                        <button class="btn btn-secondary" onclick="skipQuestion()">Pomiń</button>
+                    </div>
+                </div>
+
+                <div id="quiz-result" class="quiz-screen hidden">
+                    <h2>Wynik Quiz</h2>
+                    <div class="result-summary">
+                        <p class="result-score">Twój wynik: <span id="final-score">0</span> / <span id="final-total">0</span></p>
+                        <p class="result-percentage"><span id="percentage">0</span>%</p>
+                        <p id="result-message" class="result-message"></p>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn btn-primary" onclick="startQuiz()">Spróbuj ponownie</button>
+                        <button class="btn btn-secondary" onclick="showTab('theory')">Wróć do teorii</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POSTĘPY -->
+        <div id="progress" class="tab-content">
+            <div class="progress-container">
+                <h2>Twoje Postępy</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Ukończone quizy</h3>
+                        <p class="stat-value" id="completed-quizzes">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Średni wynik</h3>
+                        <p class="stat-value" id="average-score">0%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Najlepszy wynik</h3>
+                        <p class="stat-value" id="best-score">0%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Łącznie pytań</h3>
+                        <p class="stat-value" id="total-answered">0</p>
+                    </div>
+                </div>
+
+                <div class="progress-history">
+                    <h3>Historia quizów</h3>
+                    <div id="quiz-history" class="history-list"></div>
+                </div>
+
+                <div class="progress-actions">
+                    <button class="btn btn-danger" onclick="clearProgress()">Wyczyść historię</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="sets-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

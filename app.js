@@ -1,15 +1,28 @@
-// Stan aplikacji
-let currentQuestionIndex = 0;
-let currentScore = 0;
-let selectedQuestions = [];
-let answeredCorrectly = [];
-// quizQuestions jest zadeklarowane w sets-data.js
+// Stan aplikacji - osobny dla każdej kategorii
+const quizState = {
+    sets: {
+        currentQuestionIndex: 0,
+        currentScore: 0,
+        selectedQuestions: [],
+        answeredCorrectly: [],
+        questions: quizQuestions // z sets-data.js
+    },
+    numbers: {
+        currentQuestionIndex: 0,
+        currentScore: 0,
+        selectedQuestions: [],
+        answeredCorrectly: [],
+        questions: numbersQuestions // z numbers-data.js
+    }
+};
 
 // Inicjalizacja aplikacji
 document.addEventListener('DOMContentLoaded', function() {
     initializeTabs();
+    initializeSubtabs();
     loadProgress();
-    setupQuiz();
+    setupQuiz('sets');
+    setupQuiz('numbers');
 });
 
 // ===== ZARZĄDZANIE ZAKŁADKAMI =====
@@ -53,29 +66,76 @@ function showTab(tabName) {
     }
 }
 
-// ===== QUIZ =====
+function initializeSubtabs() {
+    const subtabButtons = document.querySelectorAll('.subtab-button');
 
-function setupQuiz() {
-    // Wyświetl liczbę pytań
-    document.getElementById('total-questions').textContent = quizQuestions.length;
+    subtabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const subtabName = this.getAttribute('data-subtab');
+            const parentTab = this.closest('.tab-content').id;
+            showSubtab(parentTab, subtabName);
+        });
+    });
 }
 
-function startQuiz() {
+function showSubtab(parentTab, subtabName) {
+    const parent = document.getElementById(parentTab);
+    if (!parent) return;
+
+    // Ukryj wszystkie pod-zakładki w tym rodzicu
+    const subtabContents = parent.querySelectorAll('.subtab-content');
+    subtabContents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Usuń aktywny stan z przycisków pod-zakładek
+    const subtabButtons = parent.querySelectorAll('.subtab-button');
+    subtabButtons.forEach(button => {
+        button.classList.remove('active');
+    });
+
+    // Pokaż wybraną pod-zakładkę
+    const subtabContent = document.getElementById(subtabName);
+    if (subtabContent) {
+        subtabContent.classList.add('active');
+    }
+
+    // Zaznacz aktywny przycisk
+    const activeButton = parent.querySelector(`[data-subtab="${subtabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+}
+
+// ===== QUIZ =====
+
+function setupQuiz(category) {
+    const suffix = category === 'sets' ? '' : '-numbers';
+    const totalQuestionsEl = document.getElementById(`total-questions${suffix}`);
+    if (totalQuestionsEl) {
+        totalQuestionsEl.textContent = quizState[category].questions.length;
+    }
+}
+
+function startQuiz(category) {
+    const state = quizState[category];
+    const suffix = category === 'sets' ? '' : '-numbers';
+
     // Zresetuj stan
-    currentQuestionIndex = 0;
-    currentScore = 0;
-    answeredCorrectly = [];
+    state.currentQuestionIndex = 0;
+    state.currentScore = 0;
+    state.answeredCorrectly = [];
 
     // Wymieszaj pytania
-    selectedQuestions = shuffleArray([...quizQuestions]);
+    state.selectedQuestions = shuffleArray([...state.questions]);
 
     // Pokaż ekran pytania
-    document.getElementById('quiz-start').classList.add('hidden');
-    document.getElementById('quiz-result').classList.add('hidden');
-    document.getElementById('quiz-question').classList.remove('hidden');
+    document.getElementById(`quiz-start${suffix}`).classList.add('hidden');
+    document.getElementById(`quiz-result${suffix}`).classList.add('hidden');
+    document.getElementById(`quiz-question${suffix}`).classList.remove('hidden');
 
     // Wyświetl pierwsze pytanie
-    displayQuestion();
+    displayQuestion(category);
 }
 
 function shuffleArray(array) {
@@ -87,25 +147,28 @@ function shuffleArray(array) {
     return shuffled;
 }
 
-function displayQuestion() {
-    if (currentQuestionIndex >= selectedQuestions.length) {
-        showResults();
+function displayQuestion(category) {
+    const state = quizState[category];
+    const suffix = category === 'sets' ? '' : '-numbers';
+
+    if (state.currentQuestionIndex >= state.selectedQuestions.length) {
+        showResults(category);
         return;
     }
 
-    const question = selectedQuestions[currentQuestionIndex];
+    const question = state.selectedQuestions[state.currentQuestionIndex];
 
     // Aktualizuj nagłówek
-    document.getElementById('current-question').textContent = currentQuestionIndex + 1;
-    document.getElementById('total-q').textContent = selectedQuestions.length;
-    document.getElementById('current-score').textContent = currentScore;
+    document.getElementById(`current-question${suffix}`).textContent = state.currentQuestionIndex + 1;
+    document.getElementById(`total-q${suffix}`).textContent = state.selectedQuestions.length;
+    document.getElementById(`current-score${suffix}`).textContent = state.currentScore;
 
     // Wyświetl pytanie
-    document.getElementById('question-text').textContent = question.question;
+    document.getElementById(`question-text${suffix}`).textContent = question.question;
 
     // Wyświetl zbiory
-    const setsDisplay = document.getElementById('question-sets');
-    if (question.sets) {
+    const setsDisplay = document.getElementById(`question-sets${suffix}`);
+    if (question.sets && Object.keys(question.sets).length > 0) {
         let setsHtml = '';
         for (const [key, value] of Object.entries(question.sets)) {
             if (Array.isArray(value)) {
@@ -121,11 +184,12 @@ function displayQuestion() {
     }
 
     // Wyświetl odpowiedzi
-    displayAnswers(question.answers);
+    displayAnswers(category, question.answers);
 }
 
-function displayAnswers(answers) {
-    const answersContainer = document.getElementById('answers-container');
+function displayAnswers(category, answers) {
+    const suffix = category === 'sets' ? '' : '-numbers';
+    const answersContainer = document.getElementById(`answers-container${suffix}`);
     answersContainer.innerHTML = '';
 
     // Wymieszaj odpowiedzi
@@ -135,14 +199,18 @@ function displayAnswers(answers) {
         const button = document.createElement('button');
         button.className = 'answer-btn';
         button.textContent = answer.text;
-        button.onclick = () => selectAnswer(answer.correct, button);
+        button.onclick = () => selectAnswer(category, answer.correct, button);
         answersContainer.appendChild(button);
     });
 }
 
-function selectAnswer(isCorrect, buttonElement) {
-    // Zablokuj wszystkie przyciski
-    const allButtons = document.querySelectorAll('.answer-btn');
+function selectAnswer(category, isCorrect, buttonElement) {
+    const state = quizState[category];
+    const suffix = category === 'sets' ? '' : '-numbers';
+
+    // Zablokuj wszystkie przyciski w tej kategorii
+    const container = document.getElementById(`answers-container${suffix}`);
+    const allButtons = container.querySelectorAll('.answer-btn');
     allButtons.forEach(btn => {
         btn.classList.add('disabled');
         btn.onclick = null;
@@ -151,15 +219,15 @@ function selectAnswer(isCorrect, buttonElement) {
     // Zaznacz odpowiedź
     if (isCorrect) {
         buttonElement.classList.add('correct');
-        currentScore++;
-        answeredCorrectly.push(true);
+        state.currentScore++;
+        state.answeredCorrectly.push(true);
     } else {
         buttonElement.classList.add('incorrect');
-        answeredCorrectly.push(false);
+        state.answeredCorrectly.push(false);
 
         // Pokaż poprawną odpowiedź
         allButtons.forEach(btn => {
-            const question = selectedQuestions[currentQuestionIndex];
+            const question = state.selectedQuestions[state.currentQuestionIndex];
             const answer = question.answers.find(a => a.text === btn.textContent);
             if (answer && answer.correct) {
                 btn.classList.add('correct');
@@ -168,40 +236,46 @@ function selectAnswer(isCorrect, buttonElement) {
     }
 
     // Aktualizuj wynik
-    document.getElementById('current-score').textContent = currentScore;
+    document.getElementById(`current-score${suffix}`).textContent = state.currentScore;
 
     // Przejdź do następnego pytania po 1.5 sekundy
     setTimeout(() => {
-        currentQuestionIndex++;
-        displayQuestion();
+        state.currentQuestionIndex++;
+        displayQuestion(category);
     }, 1500);
 }
 
-function skipQuestion() {
-    answeredCorrectly.push(false);
-    currentQuestionIndex++;
-    displayQuestion();
+function skipQuestion(category) {
+    const state = quizState[category];
+    state.answeredCorrectly.push(false);
+    state.currentQuestionIndex++;
+    displayQuestion(category);
 }
 
-function showResults() {
+function showResults(category) {
+    const state = quizState[category];
+    const suffix = category === 'sets' ? '' : '-numbers';
+
     // Ukryj pytanie
-    document.getElementById('quiz-question').classList.add('hidden');
+    document.getElementById(`quiz-question${suffix}`).classList.add('hidden');
 
     // Pokaż wyniki
-    const resultScreen = document.getElementById('quiz-result');
+    const resultScreen = document.getElementById(`quiz-result${suffix}`);
     resultScreen.classList.remove('hidden');
 
-    const totalQuestions = selectedQuestions.length;
-    const percentage = Math.round((currentScore / totalQuestions) * 100);
+    const totalQuestions = state.selectedQuestions.length;
+    const percentage = Math.round((state.currentScore / totalQuestions) * 100);
 
-    document.getElementById('final-score').textContent = currentScore;
-    document.getElementById('final-total').textContent = totalQuestions;
-    document.getElementById('percentage').textContent = percentage;
+    document.getElementById(`final-score${suffix}`).textContent = state.currentScore;
+    document.getElementById(`final-total${suffix}`).textContent = totalQuestions;
+    document.getElementById(`percentage${suffix}`).textContent = percentage;
 
     // Wiadomość w zależności od wyniku
-    const messageElement = document.getElementById('result-message');
+    const messageElement = document.getElementById(`result-message${suffix}`);
+    const topicName = category === 'sets' ? 'działania na zbiorach' : 'liczby rzeczywiste';
+
     if (percentage >= 90) {
-        messageElement.textContent = 'Doskonale! Świetnie znasz działania na zbiorach!';
+        messageElement.textContent = `Doskonale! Świetnie znasz ${topicName}!`;
         messageElement.style.color = 'var(--success-color)';
     } else if (percentage >= 70) {
         messageElement.textContent = 'Bardzo dobrze! Masz solidną wiedzę.';
@@ -215,27 +289,34 @@ function showResults() {
     }
 
     // Zapisz wynik
-    saveQuizResult(currentScore, totalQuestions, percentage);
+    saveQuizResult(category, state.currentScore, totalQuestions, percentage);
 }
 
 // ===== LOCAL STORAGE =====
 
-function saveQuizResult(score, total, percentage) {
-    const quizHistory = getQuizHistory();
+function saveQuizResult(category, score, total, percentage) {
+    const quizHistory = getQuizHistory(category);
 
     const result = {
         date: new Date().toISOString(),
+        category: category,
         score: score,
         total: total,
         percentage: percentage
     };
 
     quizHistory.push(result);
-    localStorage.setItem('mathQuizHistory', JSON.stringify(quizHistory));
+    localStorage.setItem(`mathQuizHistory_${category}`, JSON.stringify(quizHistory));
 }
 
-function getQuizHistory() {
-    const history = localStorage.getItem('mathQuizHistory');
+function getQuizHistory(category) {
+    if (!category) {
+        // Zwróć wszystkie wyniki
+        const setsHistory = JSON.parse(localStorage.getItem('mathQuizHistory_sets') || '[]');
+        const numbersHistory = JSON.parse(localStorage.getItem('mathQuizHistory_numbers') || '[]');
+        return [...setsHistory, ...numbersHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+    const history = localStorage.getItem(`mathQuizHistory_${category}`);
     return history ? JSON.parse(history) : [];
 }
 
@@ -282,11 +363,10 @@ function displayProgress() {
 function displayQuizHistory(history) {
     const historyContainer = document.getElementById('quiz-history');
 
-    // Sortuj od najnowszych
-    const sortedHistory = [...history].reverse();
+    // Historia jest już posortowana w getQuizHistory
 
     let historyHtml = '';
-    sortedHistory.forEach((quiz, index) => {
+    history.forEach((quiz, index) => {
         const date = new Date(quiz.date);
         const dateStr = date.toLocaleDateString('pl-PL', {
             year: 'numeric',
@@ -303,11 +383,16 @@ function displayQuizHistory(history) {
             scoreClass = 'medium';
         }
 
+        const categoryLabel = quiz.category === 'sets' ? 'Zbiory' : 'Liczby rzeczywiste';
+        const categoryBadge = quiz.category === 'sets'
+            ? '<span style="background:#4a90e2;color:white;padding:2px 8px;border-radius:4px;font-size:0.8rem;margin-right:8px;">Zbiory</span>'
+            : '<span style="background:#764ba2;color:white;padding:2px 8px;border-radius:4px;font-size:0.8rem;margin-right:8px;">Liczby</span>';
+
         historyHtml += `
             <div class="history-item">
                 <div>
                     <div class="history-date">${dateStr}</div>
-                    <div>Pytań: ${quiz.total}</div>
+                    <div>${categoryBadge}Pytań: ${quiz.total}</div>
                 </div>
                 <div class="history-score ${scoreClass}">
                     ${quiz.score}/${quiz.total} (${quiz.percentage}%)
@@ -321,6 +406,9 @@ function displayQuizHistory(history) {
 
 function clearProgress() {
     if (confirm('Czy na pewno chcesz wyczyścić całą historię quizów?')) {
+        localStorage.removeItem('mathQuizHistory_sets');
+        localStorage.removeItem('mathQuizHistory_numbers');
+        // Usuń też starą historię jeśli istnieje
         localStorage.removeItem('mathQuizHistory');
         displayProgress();
         alert('Historia została wyczyszczona.');

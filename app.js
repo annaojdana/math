@@ -1,9 +1,9 @@
 // Stan aplikacji
 let currentQuestionIndex = 0;
 let currentScore = 0;
-let quizQuestions = [];
 let selectedQuestions = [];
 let answeredCorrectly = [];
+// quizQuestions jest zadeklarowane w sets-data.js
 
 // Inicjalizacja aplikacji
 document.addEventListener('DOMContentLoaded', function() {

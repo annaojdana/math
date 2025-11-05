@@ -110,6 +110,47 @@ header h1 {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Subtabs */
+.subtabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--border-color);
+    margin: -30px -30px 30px -30px;
+    padding: 0 20px;
+}
+
+.subtab-button {
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+.subtab-button:hover {
+    color: var(--primary-color);
+    background: rgba(74, 144, 226, 0.05);
+}
+
+.subtab-button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.subtab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.subtab-content.active {
+    display: block;
+}
+
 /* Theory Section */
 .theory-section {
     margin-bottom: 40px;

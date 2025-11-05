@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProgress();
     setupQuiz('sets');
     setupQuiz('numbers');
+    generateExam();
 });
 
 // ===== ZARZĄDZANIE ZAKŁADKAMI =====
@@ -413,4 +414,165 @@ function clearProgress() {
         displayProgress();
         alert('Historia została wyczyszczona.');
     }
+}
+
+// ===== SPRAWDZIAN =====
+
+function generateExam() {
+    const container = document.getElementById('exam-tasks');
+    if (!container) return;
+
+    let html = '';
+    let totalPoints = 0;
+
+    examTasks.forEach(task => {
+        totalPoints += task.points;
+        html += `
+            <div class="exam-task" id="task-${task.id}">
+                <div class="task-header">
+                    <div class="task-title">${task.id}. ${task.title}</div>
+                    <div class="task-points">${task.points} pkt</div>
+                </div>
+        `;
+
+        task.parts.forEach((part, index) => {
+            const partId = `task-${task.id}-part-${index}`;
+            html += `
+                <div class="task-part" id="${partId}">
+                    <div class="part-question">
+                        ${part.letter ? `<strong>${part.letter})</strong>` : ''}
+                        ${part.question}
+                    </div>
+                    <input
+                        type="text"
+                        class="answer-input"
+                        id="answer-${partId}"
+                        placeholder="Wpisz odpowiedź..."
+                    />
+                    <div class="part-feedback hidden" id="feedback-${partId}"></div>
+                    <button class="hint-btn" onclick="toggleHint('${partId}')">💡 Pokaż podpowiedź</button>
+                    <div class="hint-content hidden" id="hint-${partId}">${part.hint}</div>
+                    <div class="explanation-content hidden" id="explanation-${partId}">${part.explanation}</div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+    });
+
+    container.innerHTML = html;
+    document.getElementById('exam-total').textContent = totalPoints;
+}
+
+function toggleHint(partId) {
+    const hintElement = document.getElementById(`hint-${partId}`);
+    hintElement.classList.toggle('hidden');
+}
+
+function checkAllAnswers() {
+    let earnedPoints = 0;
+    let totalPoints = 0;
+
+    examTasks.forEach(task => {
+        totalPoints += task.points;
+        let taskCorrectParts = 0;
+        let taskTotalParts = task.parts.length;
+
+        task.parts.forEach((part, index) => {
+            const partId = `task-${task.id}-part-${index}`;
+            const answerInput = document.getElementById(`answer-${partId}`);
+            const feedback = document.getElementById(`feedback-${partId}`);
+            const explanation = document.getElementById(`explanation-${partId}`);
+
+            const userAnswer = answerInput.value.trim();
+
+            // Sprawdź odpowiedź
+            let isCorrect = false;
+            if (part.checkFunction) {
+                isCorrect = part.checkFunction(userAnswer);
+            } else {
+                isCorrect = userAnswer.toLowerCase() === part.correctAnswer.toLowerCase();
+            }
+
+            // Wyświetl feedback
+            answerInput.classList.remove('correct', 'incorrect');
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+            explanation.classList.remove('hidden');
+
+            if (userAnswer === '') {
+                feedback.classList.add('hidden');
+                explanation.classList.add('hidden');
+                return;
+            }
+
+            if (isCorrect) {
+                answerInput.classList.add('correct');
+                feedback.classList.add('correct');
+                feedback.textContent = '✓ Poprawnie!';
+                taskCorrectParts++;
+            } else {
+                answerInput.classList.add('incorrect');
+                feedback.classList.add('incorrect');
+                feedback.textContent = `✗ Niepoprawnie. Poprawna odpowiedź: ${part.correctAnswer}`;
+            }
+        });
+
+        // Przyznaj punkty za zadanie
+        const taskElement = document.getElementById(`task-${task.id}`);
+        taskElement.classList.remove('correct', 'incorrect');
+
+        const pointsForTask = (taskCorrectParts / taskTotalParts) * task.points;
+        earnedPoints += pointsForTask;
+
+        if (taskCorrectParts === taskTotalParts && taskTotalParts > 0) {
+            taskElement.classList.add('correct');
+        } else if (taskCorrectParts > 0) {
+            // Częściowo poprawne
+        } else {
+            taskElement.classList.add('incorrect');
+        }
+    });
+
+    // Wyświetl podsumowanie
+    const summary = document.getElementById('exam-summary');
+    summary.classList.remove('hidden');
+
+    document.getElementById('exam-score').textContent = earnedPoints.toFixed(1);
+    document.getElementById('exam-total').textContent = totalPoints;
+
+    const percentage = (earnedPoints / totalPoints * 100).toFixed(1);
+    document.getElementById('exam-percentage').textContent = percentage;
+
+    // Przewiń do podsumowania
+    summary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetExam() {
+    // Wyczyść wszystkie inputy
+    document.querySelectorAll('.answer-input').forEach(input => {
+        input.value = '';
+        input.classList.remove('correct', 'incorrect');
+    });
+
+    // Ukryj feedback i wyjaśnienia
+    document.querySelectorAll('.part-feedback').forEach(feedback => {
+        feedback.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.explanation-content').forEach(explanation => {
+        explanation.classList.add('hidden');
+    });
+
+    // Ukryj podpowiedzi
+    document.querySelectorAll('.hint-content').forEach(hint => {
+        hint.classList.add('hidden');
+    });
+
+    // Wyczyść klasy zadań
+    document.querySelectorAll('.exam-task').forEach(task => {
+        task.classList.remove('correct', 'incorrect');
+    });
+
+    // Ukryj podsumowanie
+    document.getElementById('exam-summary').classList.add('hidden');
 }

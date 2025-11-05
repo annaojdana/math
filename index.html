@@ -158,6 +158,7 @@
             <nav class="subtabs">
                 <button class="subtab-button active" data-subtab="numbers-theory">Teoria</button>
                 <button class="subtab-button" data-subtab="numbers-quiz">Quiz</button>
+                <button class="subtab-button" data-subtab="numbers-exam">Sprawdzian</button>
             </nav>
 
             <!-- TEORIA LICZB -->
@@ -349,6 +350,30 @@
                     </div>
                 </div>
             </div>
+
+            <!-- SPRAWDZIAN LICZB -->
+            <div id="numbers-exam" class="subtab-content">
+                <div class="exam-container">
+                    <div class="exam-header">
+                        <h2>Sprawdzian z liczb rzeczywistych</h2>
+                        <p class="exam-info">Rozwiąż zadania ze sprawdzianu. Wpisz odpowiedzi i sprawdź wyniki.</p>
+                        <div class="exam-controls">
+                            <button class="btn btn-primary" onclick="checkAllAnswers()">Sprawdź wszystkie odpowiedzi</button>
+                            <button class="btn btn-secondary" onclick="resetExam()">Wyczyść odpowiedzi</button>
+                        </div>
+                    </div>
+
+                    <div id="exam-tasks" class="exam-tasks">
+                        <!-- Zadania będą wygenerowane przez JavaScript -->
+                    </div>
+
+                    <div class="exam-summary hidden" id="exam-summary">
+                        <h3>Podsumowanie</h3>
+                        <p>Zdobyte punkty: <span id="exam-score">0</span> / <span id="exam-total">0</span></p>
+                        <p>Procent: <span id="exam-percentage">0</span>%</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- POSTĘPY -->
@@ -389,6 +414,7 @@
 
     <script src="sets-data.js"></script>
     <script src="numbers-data.js"></script>
+    <script src="exam-data.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

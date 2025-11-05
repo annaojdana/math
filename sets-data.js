@@ -133,36 +133,6 @@ const quizQuestions = [
         explanation: "Jeśli zbiory są rozłączne, to A − B = A."
     },
 
-    // Różnica symetryczna
-    {
-        question: "Oblicz różnicę symetryczną A △ B",
-        sets: {
-            A: [1, 2, 3, 4],
-            B: [3, 4, 5, 6]
-        },
-        answers: [
-            { text: "{1, 2, 5, 6}", correct: true },
-            { text: "{3, 4}", correct: false },
-            { text: "{1, 2, 3, 4, 5, 6}", correct: false },
-            { text: "{}", correct: false }
-        ],
-        explanation: "Różnica symetryczna zawiera elementy należące do dokładnie jednego z dwóch zbiorów."
-    },
-    {
-        question: "Jaki jest wynik A △ B?",
-        sets: {
-            A: [5, 10, 15, 20],
-            B: [15, 20, 25, 30]
-        },
-        answers: [
-            { text: "{5, 10, 25, 30}", correct: true },
-            { text: "{15, 20}", correct: false },
-            { text: "{5, 10, 15, 20, 25, 30}", correct: false },
-            { text: "{5, 10}", correct: false }
-        ],
-        explanation: "A △ B to elementy które są w A lub B, ale nie w obu jednocześnie."
-    },
-
     // Dopełnienie
     {
         question: "Oblicz dopełnienie A' (uniwersum U podane)",

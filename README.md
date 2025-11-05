@@ -10,12 +10,11 @@ Interaktywna aplikacja do nauki działań na zbiorach w formie quizów i prezent
 - Przecięcie zbiorów (∩)
 - Różnica zbiorów (−)
 - Dopełnienie zbioru (')
-- Różnica symetryczna (△)
 - Własności działań (przemienność, łączność, prawa de Morgana)
 - Przykłady i definicje
 
 ### 2. Quiz
-- 22 pytania testujące wiedzę o działaniach na zbiorach
+- 20 pytań testujących wiedzę o działaniach na zbiorach
 - Losowe mieszanie pytań i odpowiedzi
 - Natychmiastowa informacja zwrotna
 - System punktacji

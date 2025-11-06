@@ -831,6 +831,147 @@ header h1 {
     color: var(--primary-color);
 }
 
+/* Prime Factors Interactive Interface */
+.prime-factors-interface {
+    margin: 15px 0;
+}
+
+.prime-numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.prime-number-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+}
+
+.prime-number-card:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: var(--shadow-hover);
+}
+
+.prime-number-card:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.selected-factors-display {
+    background: var(--light-bg);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.selected-factors-label {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.selected-factors-content {
+    font-size: 1.3rem;
+    font-family: 'Courier New', monospace;
+    color: var(--dark-text);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.factor-chip {
+    background: var(--primary-color);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+}
+
+.factor-chip .remove-factor {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    transition: background 0.2s ease;
+}
+
+.factor-chip .remove-factor:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.current-product-display {
+    background: #e3f2fd;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--dark-text);
+    margin-bottom: 10px;
+}
+
+.current-product-display .product-value {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.current-product-display.correct {
+    background: rgba(40, 167, 69, 0.1);
+    border: 2px solid var(--success-color);
+}
+
+.current-product-display.incorrect {
+    background: rgba(220, 53, 69, 0.1);
+    border: 2px solid var(--danger-color);
+}
+
+.prime-factors-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.prime-factors-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
 /* Exam Responsive */
 @media (max-width: 768px) {
     .exam-controls {
@@ -845,5 +986,18 @@ header h1 {
         flex-direction: column;
         gap: 10px;
         align-items: flex-start;
+    }
+
+    .prime-numbers-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .prime-number-card {
+        font-size: 1.2rem;
+        padding: 12px;
+    }
+
+    .selected-factors-content {
+        font-size: 1.1rem;
     }
 }

@@ -443,6 +443,39 @@ function generateExam() {
                         ${part.letter ? `<strong>${part.letter})</strong>` : ''}
                         ${part.question}
                     </div>
+            `;
+
+            // Renderuj odpowiedni interfejs w zależności od typu
+            if (part.type === 'prime-factors') {
+                html += `
+                    <div class="prime-factors-interface" id="interface-${partId}">
+                        <div class="selected-factors-display">
+                            <div class="selected-factors-label">Wybrany rozkład:</div>
+                            <div class="selected-factors-content" id="selected-factors-${partId}">
+                                <span style="color: var(--secondary-color);">Kliknij liczby pierwsze poniżej...</span>
+                            </div>
+                        </div>
+                        <div class="current-product-display" id="product-${partId}">
+                            Iloczyn: <span class="product-value">1</span> (cel: ${part.targetNumber})
+                        </div>
+                        <div class="prime-numbers-grid">
+                            ${part.availablePrimes.map(prime => `
+                                <button class="prime-number-card" onclick="addPrimeFactor(${task.id}, ${index}, ${prime})">
+                                    ${prime}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div class="prime-factors-actions">
+                            <button class="btn btn-secondary" onclick="clearPrimeFactors(${task.id}, ${index})">
+                                Wyczyść
+                            </button>
+                        </div>
+                    </div>
+                    <div class="part-feedback hidden" id="feedback-${partId}"></div>
+                `;
+            } else {
+                // Standardowy input tekstowy
+                html += `
                     <input
                         type="text"
                         class="answer-input"
@@ -450,6 +483,10 @@ function generateExam() {
                         placeholder="Wpisz odpowiedź..."
                     />
                     <div class="part-feedback hidden" id="feedback-${partId}"></div>
+                `;
+            }
+
+            html += `
                     <button class="hint-btn" onclick="toggleHint('${partId}')">💡 Pokaż podpowiedź</button>
                     <div class="hint-content hidden" id="hint-${partId}">${part.hint}</div>
                     <div class="explanation-content hidden" id="explanation-${partId}">${part.explanation}</div>
@@ -469,6 +506,87 @@ function toggleHint(partId) {
     hintElement.classList.toggle('hidden');
 }
 
+// ===== PRIME FACTORS INTERACTIVE INTERFACE =====
+
+// Przechowywanie wybranych czynników dla każdego zadania
+const primeFactorsState = {};
+
+function initPrimeFactorsState(taskId, partIndex) {
+    const key = `${taskId}-${partIndex}`;
+    if (!primeFactorsState[key]) {
+        primeFactorsState[key] = [];
+    }
+    return key;
+}
+
+function addPrimeFactor(taskId, partIndex, prime) {
+    const key = initPrimeFactorsState(taskId, partIndex);
+    primeFactorsState[key].push(prime);
+    updatePrimeFactorsDisplay(taskId, partIndex);
+}
+
+function removePrimeFactor(taskId, partIndex, factorIndex) {
+    const key = `${taskId}-${partIndex}`;
+    if (primeFactorsState[key]) {
+        primeFactorsState[key].splice(factorIndex, 1);
+        updatePrimeFactorsDisplay(taskId, partIndex);
+    }
+}
+
+function clearPrimeFactors(taskId, partIndex) {
+    const key = `${taskId}-${partIndex}`;
+    primeFactorsState[key] = [];
+    updatePrimeFactorsDisplay(taskId, partIndex);
+}
+
+function updatePrimeFactorsDisplay(taskId, partIndex) {
+    const key = `${taskId}-${partIndex}`;
+    const partId = `task-${taskId}-part-${partIndex}`;
+    const factors = primeFactorsState[key] || [];
+
+    const displayElement = document.getElementById(`selected-factors-${partId}`);
+    const productElement = document.getElementById(`product-${partId}`);
+
+    // Aktualizuj wyświetlanie wybranych czynników
+    if (factors.length === 0) {
+        displayElement.innerHTML = '<span style="color: var(--secondary-color);">Kliknij liczby pierwsze poniżej...</span>';
+    } else {
+        displayElement.innerHTML = factors.map((factor, index) => `
+            <span class="factor-chip">
+                ${factor}
+                <button class="remove-factor" onclick="removePrimeFactor(${taskId}, ${partIndex}, ${index})" title="Usuń">×</button>
+            </span>
+        `).join('');
+    }
+
+    // Oblicz i wyświetl iloczyn
+    const product = factors.length > 0 ? factors.reduce((acc, val) => acc * val, 1) : 1;
+    const task = examTasks.find(t => t.id === taskId);
+    const part = task.parts[partIndex];
+    const targetNumber = part.targetNumber;
+
+    const productValueSpan = productElement.querySelector('.product-value');
+    productValueSpan.textContent = product;
+
+    // Usuń poprzednie klasy
+    productElement.classList.remove('correct', 'incorrect');
+
+    // Dodaj odpowiednią klasę jeśli są jakieś czynniki
+    if (factors.length > 0) {
+        if (product === targetNumber) {
+            productElement.classList.add('correct');
+            productElement.innerHTML = `Iloczyn: <span class="product-value">${product}</span> ✓ Brawo! To ${targetNumber}!`;
+        } else if (product > targetNumber) {
+            productElement.classList.add('incorrect');
+            productElement.innerHTML = `Iloczyn: <span class="product-value">${product}</span> ✗ Za dużo! (cel: ${targetNumber})`;
+        } else {
+            productElement.innerHTML = `Iloczyn: <span class="product-value">${product}</span> (cel: ${targetNumber})`;
+        }
+    } else {
+        productElement.innerHTML = `Iloczyn: <span class="product-value">1</span> (cel: ${targetNumber})`;
+    }
+}
+
 function checkAllAnswers() {
     let earnedPoints = 0;
     let totalPoints = 0;
@@ -480,40 +598,75 @@ function checkAllAnswers() {
 
         task.parts.forEach((part, index) => {
             const partId = `task-${task.id}-part-${index}`;
-            const answerInput = document.getElementById(`answer-${partId}`);
             const feedback = document.getElementById(`feedback-${partId}`);
             const explanation = document.getElementById(`explanation-${partId}`);
 
-            const userAnswer = answerInput.value.trim();
-
-            // Sprawdź odpowiedź
+            let userAnswer;
             let isCorrect = false;
-            if (part.checkFunction) {
-                isCorrect = part.checkFunction(userAnswer);
+
+            // Obsługa różnych typów interfejsu
+            if (part.type === 'prime-factors') {
+                // Dla interaktywnego interfejsu z czynnikami pierwszymi
+                const key = `${task.id}-${index}`;
+                userAnswer = primeFactorsState[key] || [];
+
+                if (userAnswer.length === 0) {
+                    feedback.classList.add('hidden');
+                    explanation.classList.add('hidden');
+                    return;
+                }
+
+                // Sprawdź odpowiedź używając checkFunction
+                if (part.checkFunction) {
+                    isCorrect = part.checkFunction(userAnswer);
+                }
+
+                // Wyświetl feedback
+                feedback.classList.remove('hidden', 'correct', 'incorrect');
+                explanation.classList.remove('hidden');
+
+                if (isCorrect) {
+                    feedback.classList.add('correct');
+                    feedback.textContent = '✓ Poprawnie! Świetny rozkład na czynniki pierwsze!';
+                    taskCorrectParts++;
+                } else {
+                    feedback.classList.add('incorrect');
+                    const correctAnswerStr = part.correctAnswer.join(' × ');
+                    feedback.textContent = `✗ Niepoprawnie. Poprawna odpowiedź: ${correctAnswerStr}`;
+                }
             } else {
-                isCorrect = userAnswer.toLowerCase() === part.correctAnswer.toLowerCase();
-            }
+                // Standardowy input tekstowy
+                const answerInput = document.getElementById(`answer-${partId}`);
+                userAnswer = answerInput.value.trim();
 
-            // Wyświetl feedback
-            answerInput.classList.remove('correct', 'incorrect');
-            feedback.classList.remove('hidden', 'correct', 'incorrect');
-            explanation.classList.remove('hidden');
+                // Sprawdź odpowiedź
+                if (part.checkFunction) {
+                    isCorrect = part.checkFunction(userAnswer);
+                } else {
+                    isCorrect = userAnswer.toLowerCase() === part.correctAnswer.toLowerCase();
+                }
 
-            if (userAnswer === '') {
-                feedback.classList.add('hidden');
-                explanation.classList.add('hidden');
-                return;
-            }
+                // Wyświetl feedback
+                answerInput.classList.remove('correct', 'incorrect');
+                feedback.classList.remove('hidden', 'correct', 'incorrect');
+                explanation.classList.remove('hidden');
 
-            if (isCorrect) {
-                answerInput.classList.add('correct');
-                feedback.classList.add('correct');
-                feedback.textContent = '✓ Poprawnie!';
-                taskCorrectParts++;
-            } else {
-                answerInput.classList.add('incorrect');
-                feedback.classList.add('incorrect');
-                feedback.textContent = `✗ Niepoprawnie. Poprawna odpowiedź: ${part.correctAnswer}`;
+                if (userAnswer === '') {
+                    feedback.classList.add('hidden');
+                    explanation.classList.add('hidden');
+                    return;
+                }
+
+                if (isCorrect) {
+                    answerInput.classList.add('correct');
+                    feedback.classList.add('correct');
+                    feedback.textContent = '✓ Poprawnie!';
+                    taskCorrectParts++;
+                } else {
+                    answerInput.classList.add('incorrect');
+                    feedback.classList.add('incorrect');
+                    feedback.textContent = `✗ Niepoprawnie. Poprawna odpowiedź: ${part.correctAnswer}`;
+                }
             }
         });
 
@@ -552,6 +705,20 @@ function resetExam() {
     document.querySelectorAll('.answer-input').forEach(input => {
         input.value = '';
         input.classList.remove('correct', 'incorrect');
+    });
+
+    // Wyczyść stan czynników pierwszych
+    for (let key in primeFactorsState) {
+        primeFactorsState[key] = [];
+    }
+
+    // Zaktualizuj wyświetlanie dla wszystkich interfejsów prime-factors
+    examTasks.forEach(task => {
+        task.parts.forEach((part, index) => {
+            if (part.type === 'prime-factors') {
+                updatePrimeFactorsDisplay(task.id, index);
+            }
+        });
     });
 
     // Ukryj feedback i wyjaśnienia

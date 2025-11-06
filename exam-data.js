@@ -9,19 +9,20 @@ const examTasks = [
             {
                 letter: "a",
                 question: "Przedstaw liczbę 24 jako iloczyn liczb pierwszych.",
-                type: "text",
-                correctAnswer: "2×2×2×3 lub 2³×3",
-                hint: "Najpierw rozłóż liczbę 24 na czynniki, np stosując metodę z kreską. Liczby pierwsze to: 2, 3, 5, 7, 11...",
+                type: "prime-factors",
+                targetNumber: 24,
+                availablePrimes: [2, 3, 5, 7, 11, 13],
+                correctAnswer: [2, 2, 2, 3],
+                hint: "Klikaj na karty z liczbami pierwszymi, aby zbudować rozkład. Liczby pierwsze to: 2, 3, 5, 7, 11... Możesz użyć tej samej liczby kilka razy!",
                 explanation: "24 | 2\n12 | 2\n 6 | 2\n 3 | 3\n 1 |\n\nOdpowiedź: 24 = 2×2×2×3 = 2³×3",
-                checkFunction: (answer) => {
-                    const cleaned = answer.toLowerCase().replace(/\s+/g, '').replace(/·/g, 'x').replace(/\*/g, 'x');
-                    // Akceptuj różne formaty: 2x2x2x3, 2*2*2*3, 2·2·2·3, 2^3x3, 2³×3, 8x3, 8*3
-                    return cleaned.includes('2x2x2x3') ||
-                           cleaned.includes('2×2×2×3') ||
-                           cleaned === '8x3' ||
-                           cleaned === '8×3' ||
-                           cleaned.includes('2³x3') ||
-                           cleaned.includes('2^3x3');
+                checkFunction: (selectedFactors) => {
+                    // Sprawdź czy iloczyn jest równy 24
+                    const product = selectedFactors.reduce((acc, val) => acc * val, 1);
+                    if (product !== 24) return false;
+
+                    // Sprawdź czy wszystkie liczby są pierwsze
+                    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
+                    return selectedFactors.every(num => primes.includes(num));
                 }
             },
             {

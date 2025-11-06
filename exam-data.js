@@ -8,11 +8,15 @@ const examTasks = [
         parts: [
             {
                 letter: "a",
-                question: "Podkreśl 3/4 ze 24 liczb naturalnych, które są liczbami parzystymi.",
+                question: "Przedstaw liczbę 24 jako iloczyn liczb pierwszych.",
                 type: "text",
                 correctAnswer: "18",
-                hint: "Najpierw oblicz 3/4 z 24. Pamiętaj: (3/4) × 24 = (3 × 24) / 4",
-                explanation: "3/4 z 24 = (3 × 24) / 4 = 72 / 4 = 18. Odpowiedź: 18 liczb parzystych.",
+                hint: "Najpierw rozłóż liczbę 24 na czynniki, np stosując metodę z kreską",
+                explanation: "24|2
+                    12|2
+                     6|2
+                     3|3
+                     1|",
                 checkFunction: (answer) => {
                     const cleaned = answer.trim();
                     return cleaned === "18" || cleaned === "18 liczb" || cleaned === "osiemnaście";

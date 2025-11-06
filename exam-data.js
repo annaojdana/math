@@ -10,7 +10,7 @@ const examTasks = [
                 letter: "a",
                 question: "Przedstaw liczbę 24 jako iloczyn liczb pierwszych.",
                 type: "text",
-                correctAnswer: "18",
+                correctAnswer: "2x2x2x3",
                 hint: "Najpierw rozłóż liczbę 24 na czynniki, np stosując metodę z kreską",
                 explanation: "24|2
                     12|2

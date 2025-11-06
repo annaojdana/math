@@ -10,28 +10,32 @@ const examTasks = [
                 letter: "a",
                 question: "Przedstaw liczbę 24 jako iloczyn liczb pierwszych.",
                 type: "text",
-                correctAnswer: "2x2x2x3",
-                hint: "Najpierw rozłóż liczbę 24 na czynniki, np stosując metodę z kreską",
-                explanation: "24|2
-                    12|2
-                     6|2
-                     3|3
-                     1|",
+                correctAnswer: "2×2×2×3 lub 2³×3",
+                hint: "Najpierw rozłóż liczbę 24 na czynniki, np stosując metodę z kreską. Liczby pierwsze to: 2, 3, 5, 7, 11...",
+                explanation: "24 | 2\n12 | 2\n 6 | 2\n 3 | 3\n 1 |\n\nOdpowiedź: 24 = 2×2×2×3 = 2³×3",
                 checkFunction: (answer) => {
-                    const cleaned = answer.trim();
-                    return cleaned === "18" || cleaned === "18 liczb" || cleaned === "osiemnaście";
+                    const cleaned = answer.toLowerCase().replace(/\s+/g, '').replace(/·/g, 'x').replace(/\*/g, 'x');
+                    // Akceptuj różne formaty: 2x2x2x3, 2*2*2*3, 2·2·2·3, 2^3x3, 2³×3, 8x3, 8*3
+                    return cleaned.includes('2x2x2x3') ||
+                           cleaned.includes('2×2×2×3') ||
+                           cleaned === '8x3' ||
+                           cleaned === '8×3' ||
+                           cleaned.includes('2³x3') ||
+                           cleaned.includes('2^3x3');
                 }
             },
             {
                 letter: "b",
                 question: "Oblicz: 2⁸ ÷ 2⁶ oraz podaj liczbę przeciwną do wyniku.",
                 type: "text",
-                correctAnswer: "4, -4",
+                correctAnswer: "2² = 4, liczba przeciwna: -4",
                 hint: "Użyj wzoru: aᵐ ÷ aⁿ = aᵐ⁻ⁿ. Liczba przeciwna do a to -a.",
-                explanation: "2⁸ ÷ 2⁶ = 2⁸⁻⁶ = 2² = 4. Liczba przeciwna do 4 to -4.",
+                explanation: "2⁸ ÷ 2⁶ = 2⁸⁻⁶ = 2² = 4\nLiczba przeciwna do 4 to -4.",
                 checkFunction: (answer) => {
                     const cleaned = answer.toLowerCase().replace(/\s+/g, '');
-                    return cleaned.includes('4') && cleaned.includes('-4');
+                    // Musi zawierać zarówno 4 jak i -4 (lub −4)
+                    return (cleaned.includes('4') || cleaned.includes('2²') || cleaned.includes('2^2')) &&
+                           (cleaned.includes('-4') || cleaned.includes('−4'));
                 }
             }
         ]
@@ -89,11 +93,11 @@ const examTasks = [
                 question: "Wyznacz największą liczbę naturalną n, dla której π > √n.",
                 type: "text",
                 correctAnswer: "9",
-                hint: "π ≈ 3,14. Oblicz kolejne pierwiastki: √4 = 2, √9 = 3, √16 = 4. Która jest największa, ale mniejsza od π?",
-                explanation: "π ≈ 3,14159. √9 = 3 < π, ale √10 ≈ 3,16 > π. Największa liczba naturalna n to 9.",
+                hint: "π ≈ 3,14159... Sprawdź kolejne pierwiastki: √4 = 2, √9 = 3, √16 = 4, √10 ≈ 3,162... Dla której wartości n pierwiastek √n jest jeszcze mniejszy od π?",
+                explanation: "π ≈ 3,14159...\n√9 = 3 < π ✓\n√10 ≈ 3,162 > π ✗\n√16 = 4 > π ✗\n\nNajwiększa liczba naturalna n, dla której π > √n, to n = 9.",
                 checkFunction: (answer) => {
                     const cleaned = answer.trim();
-                    return cleaned === "9" || cleaned === "n=9" || cleaned === "n = 9";
+                    return cleaned === "9" || cleaned === "n=9" || cleaned === "n = 9" || cleaned === "n:9";
                 }
             }
         ]
@@ -108,8 +112,8 @@ const examTasks = [
                 question: "Zapisz w postaci ułamka zwykłego liczbę 8,(01), gdzie (01) oznacza okres.",
                 type: "text",
                 correctAnswer: "793/99",
-                hint: "Dla liczby 8,(01): x = 8,010101... Pomnoż przez 100: 100x = 801,010101... Odejmij: 100x - x = 801,01... - 8,01... = 793, więc 99x = 793.",
-                explanation: "x = 8,(01) = 8,010101...\n100x = 801,010101...\n100x - x = 793\n99x = 793\nx = 793/99",
+                hint: "Dla liczby 8,(01): x = 8,010101... Ponieważ okres ma 2 cyfry, pomnoż przez 10² = 100. Następnie odejmij równania.",
+                explanation: "x = 8,(01) = 8,010101...\nPomnóż obie strony przez 100 (bo okres ma 2 cyfry):\n100x = 801,010101...\n\nOdejmij pierwsze równanie od drugiego:\n100x - x = 801,010101... - 8,010101...\n99x = 793\nx = 793/99",
                 checkFunction: (answer) => {
                     const cleaned = answer.replace(/\s+/g, '');
                     return cleaned === "793/99";
@@ -117,14 +121,14 @@ const examTasks = [
             },
             {
                 letter: "b",
-                question: "Ile co najmniej wyrazów potrzeba rozwinięcia dziesiętnego liczby π, aby reprezentowała liczbę z dokładnością do 0,001?",
+                question: "Ile co najmniej cyfr potrzeba w rozwinięciu dziesiętnym liczby π, aby reprezentowała liczbę z dokładnością do 0,001?",
                 type: "text",
-                correctAnswer: "4",
-                hint: "π ≈ 3,14159... Dokładność 0,001 oznacza 3 miejsca po przecinku. Ile cyfr trzeba wziąć łącznie (z częścią całkowitą)?",
-                explanation: "π ≈ 3,14159... Dokładność 0,001 = 1/1000 wymaga 3 miejsc po przecinku: 3,142. To daje 4 cyfry (1 przed przecinkiem + 3 po).",
+                correctAnswer: "4 cyfry (3,142)",
+                hint: "π ≈ 3,14159... Dokładność 0,001 = 1/1000 oznacza trzecie miejsce po przecinku. Ile cyfr trzeba wziąć łącznie (włącznie z częścią całkowitą)?",
+                explanation: "π ≈ 3,14159...\nDokładność 0,001 = 1/1000 wymaga 3 miejsc po przecinku.\nPotrzebujemy: 3,142 (zaokrąglone)\n\nTo daje łącznie 4 cyfry:\n- 1 cyfra przed przecinkiem: 3\n- 3 cyfry po przecinku: 1, 4, 2\n\nOdpowiedź: 4 cyfry",
                 checkFunction: (answer) => {
-                    const cleaned = answer.trim();
-                    return cleaned === "4" || cleaned === "cztery";
+                    const cleaned = answer.trim().toLowerCase();
+                    return cleaned === "4" || cleaned === "cztery" || cleaned.includes("4 cyfry") || cleaned === "4cyfry";
                 }
             }
         ]
@@ -139,11 +143,11 @@ const examTasks = [
                 question: "Oblicz: (-20 + 4) · √6",
                 type: "text",
                 correctAnswer: "-16√6",
-                hint: "Najpierw oblicz wartość w nawiasie: -20 + 4 = -16. Następnie pomnóż przez √6.",
-                explanation: "(-20 + 4) · √6 = -16 · √6 = -16√6",
+                hint: "Najpierw oblicz wartość w nawiasie: -20 + 4. Następnie pomnóż wynik przez √6.",
+                explanation: "Krok 1: Oblicz wyrażenie w nawiasie\n-20 + 4 = -16\n\nKrok 2: Pomnóż przez √6\n-16 · √6 = -16√6",
                 checkFunction: (answer) => {
-                    const cleaned = answer.replace(/\s+/g, '');
-                    return cleaned === "-16√6" || cleaned === "-16*√6" || cleaned.includes('-16') && cleaned.includes('√6');
+                    const cleaned = answer.replace(/\s+/g, '').replace('*', '');
+                    return cleaned === "-16√6" || cleaned === "−16√6" || cleaned === "-16·√6";
                 }
             },
             {
@@ -151,23 +155,26 @@ const examTasks = [
                 question: "Oblicz: (12 - 8) · √3",
                 type: "text",
                 correctAnswer: "4√3",
-                hint: "Najpierw oblicz wartość w nawiasie: 12 - 8 = 4. Następnie pomnóż przez √3.",
-                explanation: "(12 - 8) · √3 = 4 · √3 = 4√3",
+                hint: "Najpierw oblicz wartość w nawiasie: 12 - 8. Następnie pomnóż wynik przez √3.",
+                explanation: "Krok 1: Oblicz wyrażenie w nawiasie\n12 - 8 = 4\n\nKrok 2: Pomnóż przez √3\n4 · √3 = 4√3",
                 checkFunction: (answer) => {
-                    const cleaned = answer.replace(/\s+/g, '');
-                    return cleaned === "4√3" || cleaned === "4*√3";
+                    const cleaned = answer.replace(/\s+/g, '').replace('*', '');
+                    return cleaned === "4√3" || cleaned === "4·√3";
                 }
             },
             {
                 letter: "c",
                 question: "Oblicz: (√60 + 5√15 - √3) ÷ √3 + √11",
                 type: "text",
-                correctAnswer: "2√5 + 5√5 - 1 + √11",
-                hint: "Podziel każdy składnik przez √3. Pamiętaj: √60 = √(4·15) = 2√15, a √15/√3 = √5.",
-                explanation: "√60 = 2√15\n(2√15 + 5√15 - √3) ÷ √3 = 2√15/√3 + 5√15/√3 - 1 = 2√5 + 5√5 - 1\nDodajemy √11: 2√5 + 5√5 - 1 + √11 = 7√5 - 1 + √11",
+                correctAnswer: "7√5 + √11 - 1",
+                hint: "Podziel każdy składnik przez √3. Pamiętaj: √60 = √(4·15) = 2√15, a √15/√3 = √5. Po podzieleniu uprość podobne składniki.",
+                explanation: "√60 = √(4·15) = 2√15\n(2√15 + 5√15 - √3) ÷ √3 = (2√15)/√3 + (5√15)/√3 - √3/√3\n= 2√(15/3) + 5√(15/3) - 1\n= 2√5 + 5√5 - 1\n= 7√5 - 1\nDodajemy √11: 7√5 - 1 + √11",
                 checkFunction: (answer) => {
                     const cleaned = answer.replace(/\s+/g, '');
-                    return cleaned.includes('√5') && (cleaned.includes('√11') || cleaned.includes('-1'));
+                    // Akceptuj różne kolejności: 7√5 + √11 - 1, 7√5 - 1 + √11, √11 + 7√5 - 1
+                    return (cleaned.includes('7√5') || cleaned.includes('7*√5')) &&
+                           cleaned.includes('√11') &&
+                           cleaned.includes('-1');
                 }
             }
         ]
@@ -193,12 +200,12 @@ const examTasks = [
                 letter: "b",
                 question: "Oblicz: x⁻² · x⁻³",
                 type: "text",
-                correctAnswer: "x⁻⁵",
-                hint: "Użyj wzoru: aᵐ · aⁿ = aᵐ⁺ⁿ. Pamiętaj o znakach wykładników!",
-                explanation: "x⁻² · x⁻³ = x⁻²⁺⁽⁻³⁾ = x⁻⁵ = 1/x⁵",
+                correctAnswer: "x⁻⁵ lub 1/x⁵",
+                hint: "Użyj wzoru: aᵐ · aⁿ = aᵐ⁺ⁿ. Pamiętaj o znakach wykładników! Uwaga: -2 + (-3) = -5",
+                explanation: "Użyj wzoru mnożenia potęg o tej samej podstawie:\naᵐ · aⁿ = aᵐ⁺ⁿ\n\nx⁻² · x⁻³ = x⁻²⁺⁽⁻³⁾ = x⁻⁵\n\nMożna również zapisać jako: x⁻⁵ = 1/x⁵",
                 checkFunction: (answer) => {
                     const cleaned = answer.replace(/\s+/g, '');
-                    return cleaned === "x⁻⁵" || cleaned === "x^-5" || cleaned === "1/x⁵" || cleaned === "1/x^5";
+                    return cleaned === "x⁻⁵" || cleaned === "x^-5" || cleaned === "1/x⁵" || cleaned === "1/x^5" || cleaned === "x⁻⁵" || cleaned === "x^(-5)";
                 }
             },
             {
@@ -206,11 +213,11 @@ const examTasks = [
                 question: "Oblicz: x² · (1/3)⁻²",
                 type: "text",
                 correctAnswer: "9x²",
-                hint: "(1/3)⁻² = 3² = 9. Następnie pomnóż przez x².",
-                explanation: "(1/3)⁻² = (3/1)² = 3² = 9\nx² · 9 = 9x²",
+                hint: "Potęga ujemna odwraca ułamek: (a/b)⁻ⁿ = (b/a)ⁿ. Zatem (1/3)⁻² = 3².",
+                explanation: "Krok 1: Oblicz (1/3)⁻²\nPotęga ujemna odwraca ułamek:\n(1/3)⁻² = (3/1)² = 3² = 9\n\nKrok 2: Pomnóż przez x²\nx² · 9 = 9x²",
                 checkFunction: (answer) => {
-                    const cleaned = answer.replace(/\s+/g, '');
-                    return cleaned === "9x²" || cleaned === "9x^2" || cleaned === "x²9" || cleaned === "x^29";
+                    const cleaned = answer.replace(/\s+/g, '').toLowerCase();
+                    return cleaned === "9x²" || cleaned === "9x^2" || cleaned === "x²9" || cleaned === "x^29" || cleaned === "9*x^2" || cleaned === "9*x²";
                 }
             }
         ]
@@ -236,12 +243,12 @@ const examTasks = [
                 letter: "b",
                 question: "Oblicz: log₃ 24 - log₃ 8",
                 type: "text",
-                correctAnswer: "log₃ 3 = 1",
-                hint: "Użyj wzoru: logₐ x - logₐ y = logₐ (x/y)",
-                explanation: "log₃ 24 - log₃ 8 = log₃ (24/8) = log₃ 3 = 1",
+                correctAnswer: "1",
+                hint: "Użyj wzoru różnicy logarytmów: logₐ x - logₐ y = logₐ (x/y). Następnie uprość ułamek 24/8.",
+                explanation: "Krok 1: Użyj wzoru różnicy logarytmów\nlogₐ x - logₐ y = logₐ (x/y)\n\nlog₃ 24 - log₃ 8 = log₃ (24/8) = log₃ 3\n\nKrok 2: Oblicz log₃ 3\nlog₃ 3 = 1 (bo 3¹ = 3)\n\nOdpowiedź: 1",
                 checkFunction: (answer) => {
                     const cleaned = answer.replace(/\s+/g, '').toLowerCase();
-                    return cleaned === "1" || cleaned.includes('log₃3') || cleaned.includes('log33');
+                    return cleaned === "1" || cleaned.includes('log₃3') || cleaned.includes('log33') || cleaned.includes('log3(3)');
                 }
             }
         ]
@@ -277,14 +284,15 @@ const examTasks = [
             },
             {
                 letter: "c",
-                question: "Cena swetra wzrosła w ciągu roku trzech razy po 10%. O ile procent wzrosła cena w ciągu tego roku? (Zaokrąglij do 0,1%)",
+                question: "Cena swetra wzrosła w ciągu roku trzy razy po 10%. O ile procent wzrosła cena w ciągu tego roku? (Zaokrąglij do 0,1%)",
                 type: "text",
                 correctAnswer: "33,1%",
-                hint: "Po każdym wzroście o 10%, nowa cena to 110% poprzedniej = 1,1 × cena. Po 3 wzrostach: (1,1)³ × cena początkowa.",
-                explanation: "Po 3 wzrostach o 10%: 1,1 × 1,1 × 1,1 = 1,331\nWzrost: 1,331 - 1 = 0,331 = 33,1%",
+                hint: "Po każdym wzroście o 10%, nowa cena to 110% poprzedniej = 1,1 × cena. Po 3 wzrostach: (1,1)³ × cena początkowa. Oblicz (1,1)³ i odejmij 1, aby uzyskać wzrost.",
+                explanation: "Po 3 wzrostach o 10%:\nCena końcowa = cena początkowa × 1,1 × 1,1 × 1,1\n= cena początkowa × (1,1)³\n= cena początkowa × 1,331\n\nWzrost = 1,331 - 1 = 0,331 = 33,1%",
                 checkFunction: (answer) => {
-                    const cleaned = answer.replace(/\s+/g, '');
-                    return cleaned === "33,1%" || cleaned === "33.1%" || cleaned === "33,1" || cleaned === "33.1";
+                    const cleaned = answer.replace(/\s+/g, '').replace(',', '.');
+                    return cleaned === "33.1%" || cleaned === "33.1" ||
+                           cleaned === "33,1%" || cleaned === "33,1";
                 }
             }
         ]
